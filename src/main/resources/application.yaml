@@ -1,0 +1,12 @@
+spring:
+
+  application:
+    name: nman
+    version: 1.0.0
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/nman
+
+server:
+  port: 8081

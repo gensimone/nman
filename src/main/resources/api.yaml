@@ -1,0 +1,162 @@
+openapi: 3.0.0
+
+servers:
+  - url: 'http://localhost:8081'
+
+info:
+  title: nman
+  description: Note Manager API
+  version: 1.0.0
+
+paths:
+  /notes:
+    get:
+      summary: Get all notes
+      operationId: getNotes
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notes:
+                    description: All the notes
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Note"
+    post:
+      summary: Create a note
+      operationId: createNote
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  $ref: "#/components/schemas/Title"
+                content:
+                  $ref: "#/components/schemas/Content"
+      responses:
+        '201':
+          description: The created note
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /notes/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get a note
+      operationId: getNote
+      responses:
+        '200':
+          description: The requested note
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      summary: Delete a note
+      operationId: deleteNote
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: Update a note
+      operationId: updateNote
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  $ref: "#/components/schemas/Title"
+                content:
+                  $ref: "#/components/schemas/Content"
+      responses:
+        '200':
+          description: The updated note
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+  schemas:
+    Note:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          $ref: "#/components/schemas/Title"
+        content:
+          $ref: "#/components/schemas/Content"
+    Title:
+      type: string
+      minLength: 0
+      maxLength: 50
+    Content:
+      type: string
+      minLength: 1
+      maxLength: 10000
