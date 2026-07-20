@@ -4,6 +4,7 @@ import org.example.nman.api.NotesApi;
 import org.example.nman.dto.CreateNoteRequest;
 import org.example.nman.dto.GetNotes200Response;
 import org.example.nman.dto.Note;
+import org.example.nman.dto.UpdateNoteRequest;
 import org.example.nman.service.NotesService;
 
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,18 @@ public class NotesController implements NotesApi {
     @Override
     public ResponseEntity<Void> deleteNote(String id) {
         this.service.deleteNote(id);
-        return ResponseEntity.noContent().build();
+
+        return ResponseEntity
+                .noContent()
+                .build();
+    }
+
+    public ResponseEntity<Void> deleteNotes() {
+        this.service.deleteNotes();
+
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 
     @Override
@@ -46,12 +58,12 @@ public class NotesController implements NotesApi {
         GetNotes200Response response = new GetNotes200Response();
 
         return ResponseEntity.ok(
-                response.notes(this.service.getNotes()));
+                response.notes(this.service.findAll()));
     }
 
     @Override
-    public ResponseEntity<Note> updateNote(String id, CreateNoteRequest createNoteRequest) {
-        Note note = this.service.updateNote(id, createNoteRequest);
+    public ResponseEntity<Note> updateNote(String id, UpdateNoteRequest updateNoteRequest) {
+        Note note = this.service.updateNote(id, updateNoteRequest);
 
         return ResponseEntity.ok(note);
     }

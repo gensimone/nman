@@ -1,20 +1,85 @@
 openapi: 3.0.0
 
 servers:
-  - url: 'http://localhost:8081'
+  - url: http://localhost:8081
 
 info:
   title: nman
   description: Note Manager API
   version: 1.0.0
 
+tags:
+  - name: notes
+    description: Notes
+
 paths:
+  /notes/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [ "notes" ]
+      summary: Get a note
+      operationId: getNote
+      responses:
+        "200":
+          description: The requested note
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags: [ "notes" ]
+      summary: Delete a note
+      operationId: deleteNote
+      responses:
+        "204":
+          description: No Content
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      tags: [ "notes" ]
+      summary: Update a note
+      operationId: updateNote
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateNoteRequest"
+      responses:
+        "200":
+          description: The updated note
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
   /notes:
     get:
+      tags: [ "notes" ]
       summary: Get all notes
       operationId: getNotes
       responses:
-        '200':
+        "200":
           description: Successful
           content:
             application/json:
@@ -27,92 +92,71 @@ paths:
                     items:
                       $ref: "#/components/schemas/Note"
     post:
+      tags: [ "notes" ]
       summary: Create a note
       operationId: createNote
       requestBody:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                title:
-                  $ref: "#/components/schemas/Title"
-                content:
-                  $ref: "#/components/schemas/Content"
+              $ref: "#/components/schemas/CreateNoteRequest"
       responses:
-        '201':
+        "201":
           description: The created note
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Note"
-        '400':
+        "400":
           $ref: "#/components/responses/BadRequest"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  /notes/{id}:
-    parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-    get:
-      summary: Get a note
-      operationId: getNote
-      responses:
-        '200':
-          description: The requested note
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Note"
-        '400':
-          $ref: "#/components/responses/BadRequest"
-        '404':
-          $ref: "#/components/responses/NotFound"
-        '500':
+        "500":
           $ref: "#/components/responses/InternalServerError"
     delete:
-      summary: Delete a note
-      operationId: deleteNote
+      tags: [ "notes" ]
+      summary: Delete all notes
+      operationId: deleteNotes
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           $ref: "#/components/responses/BadRequest"
-        '404':
-          $ref: "#/components/responses/NotFound"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-    patch:
-      summary: Update a note
-      operationId: updateNote
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                title:
-                  $ref: "#/components/schemas/Title"
-                content:
-                  $ref: "#/components/schemas/Content"
-      responses:
-        '200':
-          description: The updated note
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Note"
-        '400':
-          $ref: "#/components/responses/BadRequest"
-        '404':
-          $ref: "#/components/responses/NotFound"
-        '500':
+        "500":
           $ref: "#/components/responses/InternalServerError"
 
 components:
+  schemas:
+    Note:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          $ref: "#/components/schemas/Title"
+        content:
+          $ref: "#/components/schemas/Content"
+    CreateNoteRequest:
+      type: object
+      properties:
+        title:
+          $ref: "#/components/schemas/Title"
+        content:
+          $ref: "#/components/schemas/Content"
+    UpdateNoteRequest:
+      type: object
+      properties:
+        title:
+          $ref: "#/components/schemas/Title"
+        content:
+          $ref: "#/components/schemas/Content"
+    Title:
+      type: string
+      minLength: 0
+      maxLength: 50
+    Content:
+      type: string
+      minLength: 1
+      maxLength: 10000
+
   responses:
     BadRequest:
       description: Bad Request
@@ -132,6 +176,15 @@ components:
             properties:
               error:
                 type: string
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
     InternalServerError:
       description: Internal Server Error
       content:
@@ -141,22 +194,3 @@ components:
             properties:
               error:
                 type: string
-
-  schemas:
-    Note:
-      type: object
-      properties:
-        id:
-          type: string
-        title:
-          $ref: "#/components/schemas/Title"
-        content:
-          $ref: "#/components/schemas/Content"
-    Title:
-      type: string
-      minLength: 0
-      maxLength: 50
-    Content:
-      type: string
-      minLength: 1
-      maxLength: 10000

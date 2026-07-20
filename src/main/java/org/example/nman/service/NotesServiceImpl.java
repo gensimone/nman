@@ -2,8 +2,9 @@ package org.example.nman.service;
 
 import org.example.nman.dto.CreateNoteRequest;
 import org.example.nman.dto.Note;
+import org.example.nman.dto.UpdateNoteRequest;
 import org.example.nman.exception.NoteNotFoundException;
-import org.example.nman.model.NoteDocument;
+import org.example.nman.model.NoteModel;
 import org.example.nman.repository.NotesRepository;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ public class NotesServiceImpl implements NotesService {
     }
 
     @Override
-    public List<Note> getNotes() {
+    public List<Note> findAll() {
         return this.repository
                 .findAll()
                 .stream()
@@ -29,20 +30,20 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public Note getNote(String id) {
-        NoteDocument noteDocument = this.repository
+        NoteModel noteModel = this.repository
                 .findById(id)
                 .orElseThrow(NoteNotFoundException::new);
 
-        return toDto(noteDocument);
+        return toDto(noteModel);
     }
 
     @Override
     public Note createNote(CreateNoteRequest createNoteRequest) {
-        NoteDocument notedocument = new NoteDocument();
-        notedocument.setContent(createNoteRequest.getContent());
-        notedocument.setTitle(createNoteRequest.getTitle());
+        NoteModel noteModel = new NoteModel();
+        noteModel.setContent(createNoteRequest.getContent());
+        noteModel.setTitle(createNoteRequest.getTitle());
 
-        return toDto(this.repository.save(notedocument));
+        return toDto(this.repository.save(noteModel));
     }
 
     @Override
@@ -54,28 +55,32 @@ public class NotesServiceImpl implements NotesService {
         this.repository.deleteById(id);
     }
 
+    public void deleteNotes() {
+        this.repository.deleteAll();
+    }
+
     @Override
-    public Note updateNote(String id, CreateNoteRequest createNoteRequest) {
-        NoteDocument noteDocument = this.repository
+    public Note updateNote(String id, UpdateNoteRequest updateNoteRequest) {
+        NoteModel noteModel = this.repository
                 .findById(id)
                 .orElseThrow(NoteNotFoundException::new);
 
-        if (createNoteRequest.getTitle() != null) {
-            noteDocument.setTitle(createNoteRequest.getTitle());
+        if (updateNoteRequest.getTitle() != null) {
+            noteModel.setTitle(updateNoteRequest.getTitle());
         }
 
-        if (createNoteRequest.getContent() != null) {
-            noteDocument.setContent(createNoteRequest.getContent());
+        if (updateNoteRequest.getContent() != null) {
+            noteModel.setContent(updateNoteRequest.getContent());
         }
 
-        return toDto(this.repository.save(noteDocument));
+        return toDto(this.repository.save(noteModel));
     }
 
-    private Note toDto(NoteDocument noteDocument) {
+    private Note toDto(NoteModel noteModel) {
         Note note = new Note();
-        note.setId(noteDocument.getId());
-        note.setTitle(noteDocument.getTitle());
-        note.setContent(noteDocument.getContent());
+        note.setId(noteModel.getId());
+        note.setTitle(noteModel.getTitle());
+        note.setContent(noteModel.getContent());
 
         return note;
     }
